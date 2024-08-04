@@ -1,10 +1,14 @@
 package com.nc1_test.repository;
 
-import com.nc1_test.entities.ParsingRule;
+import com.nc1_test.entities.Website;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface WebsiteRepository extends JpaRepository<ParsingRule, Long> {
+import java.util.List;
 
-    ParsingRule findParsingRuleByWebsite(String website);
+public interface WebsiteRepository extends JpaRepository<Website, Long> {
+
+    Website findWebsiteByWebsiteName(String websiteName);
+
+    List<Website> findWebsiteByHasParsingRuleIsTrue();
 
 }

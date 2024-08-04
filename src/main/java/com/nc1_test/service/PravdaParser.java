@@ -1,7 +1,7 @@
 package com.nc1_test.service;
 
 import com.nc1_test.entities.News;
-import com.nc1_test.entities.ParsingRule;
+import com.nc1_test.entities.Website;
 import com.nc1_test.repository.NewsRepository;
 import lombok.extern.log4j.Log4j2;
 import org.jsoup.Jsoup;
@@ -15,7 +15,6 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -29,8 +28,8 @@ public class PravdaParser implements Parser {
     private NewsRepository newsRepository;
 
 
-    public void parse(ParsingRule rule) {
-        String websiteName = rule.getWebsite();
+    public void parse(Website rule) {
+        String websiteName = rule.getWebsiteName();
 
         try {
             Document mainNewsPage = Jsoup.connect(websiteName + "/news/").get();
@@ -87,16 +86,8 @@ public class PravdaParser implements Parser {
                     newsText.append(text.text());
                 }
                 description = newsText.toString();
-                log.info("");
-                log.info("Title: " + headline);
-                log.info("Publication time: " + publicationTime);
-                log.info("Description: " + description);
-                log.info("");
                 addNewsToRepositoryIfNotExist(headline, publicationTime, description);
             }
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
         } catch (Exception e) {
             log.error(e.getMessage());
             e.printStackTrace();
@@ -106,14 +97,20 @@ public class PravdaParser implements Parser {
     private void addNewsToRepositoryIfNotExist(String headline, LocalTime publicationTime, String description) {
         News newNews = new News(headline, description, publicationTime);
         ExampleMatcher matcher = ExampleMatcher.matching()
-                .withIgnorePaths("id") // Ignore the ID field
+                .withIgnorePaths("id")
                 .withMatcher("headline", ExampleMatcher.GenericPropertyMatchers.exact())
                 .withMatcher("description", ExampleMatcher.GenericPropertyMatchers.exact())
                 .withMatcher("publicationTime", ExampleMatcher.GenericPropertyMatchers.exact());
 
         Example<News> example = Example.of(newNews, matcher);
-        if (!newsRepository.exists(example))
+        if (!newsRepository.exists(example)) {
+//                log.info("");
+//                log.info("Title: " + headline);
+//                log.info("Publication time: " + publicationTime);
+//                log.info("Description: " + description);
+//                log.info("");
             newsRepository.save(newNews);
+        }
     }
 
 }

@@ -6,21 +6,21 @@ import lombok.Data;
 @Data
 @Table
 @Entity
-public class ParsingRule {
+public class Website {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String website;
+    private String websiteName;
     private boolean hasParsingRule;
 
 
-    public ParsingRule(String website) {
-        this.website = website;
+    public Website(String websiteName) {
+        this.websiteName = websiteName;
         this.hasParsingRule = false;
     }
 
-    public ParsingRule() {
+    public Website() {
     }
 
 }

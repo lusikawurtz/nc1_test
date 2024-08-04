@@ -1,9 +1,9 @@
 package com.nc1_test.service;
 
-import com.nc1_test.entities.ParsingRule;
+import com.nc1_test.entities.Website;
 
 public interface Parser {
 
-    void parse(ParsingRule rule);
+    void parse(Website rule);
 
 }
