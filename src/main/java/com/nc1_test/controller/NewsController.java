@@ -3,6 +3,7 @@ package com.nc1_test.controller;
 import com.nc1_test.entities.News;
 import com.nc1_test.service.NewsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.List;
 @RequestMapping("/news")
 @RequiredArgsConstructor
 public class NewsController {
+
+    @Autowired
     private NewsService newsService;
 
 

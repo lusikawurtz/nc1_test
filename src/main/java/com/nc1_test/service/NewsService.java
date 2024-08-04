@@ -3,6 +3,7 @@ package com.nc1_test.service;
 import com.nc1_test.entities.News;
 import com.nc1_test.repository.NewsRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class NewsService {
+
+    @Autowired
     private NewsRepository newsRepository;
 
 
@@ -34,7 +37,7 @@ public class NewsService {
         newsRepository.deleteById(id);
     }
 
-    @Scheduled(fixedRate = 1200000) // 20 minutes
+    @Scheduled(fixedRate = 1200000)
     public void parseNews() {
     }
 

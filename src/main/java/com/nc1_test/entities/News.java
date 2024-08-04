@@ -3,7 +3,7 @@ package com.nc1_test.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 @Table
@@ -14,7 +14,18 @@ public class News {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String headline;
+    @Column(length = 65555)
     private String description;
-    private LocalDateTime publicationTime;
+    private LocalTime publicationTime;
+
+
+    public News(String headline, String description, LocalTime publicationTime) {
+        this.headline = headline;
+        this.description = description;
+        this.publicationTime = publicationTime;
+    }
+
+    public News() {
+    }
 
 }
