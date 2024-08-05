@@ -5,6 +5,7 @@ import com.nc1_test.service.NewsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
@@ -25,14 +26,15 @@ public class NewsController {
     @GetMapping
     public ResponseEntity<List<News>> getNews(@RequestParam("time") String time) {
         try {
-            log.info("Getting the news from " + time + ": start");
+            log.info("Getting the news for time: {}", time);
             List<News> news = newsService.getAllNewsByTime(time);
-            log.info("Getting the news from " + time + ": success");
             return ResponseEntity.ok().body(news);
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid time input: {}", time, e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
-            log.info("Getting the news from " + time + ": error");
-            log.error(e.getMessage());
-            return ResponseEntity.status(500).build();
+            log.error("Error getting the news for time: {}", time, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -54,12 +56,12 @@ public class NewsController {
     @DeleteMapping()
     public ResponseEntity<String> deleteAllNews() {
         try {
-            log.info("Deleting all news for " + LocalDate.now() + ": start");
-            newsService.deleteNews();
-            log.info("Deleting all news for " + LocalDate.now() + ": success");
+            log.info("Deleting all news for {}: start", LocalDate.now());
+            newsService.deleteAllNews();
+            log.info("Deleting all news for {}: success", LocalDate.now());
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.info("Deleting all news for " + LocalDate.now() + ": error");
+            log.info("Deleting all news for {}: error", LocalDate.now());
             log.error(e.getMessage());
             return ResponseEntity.status(500).build();
         }

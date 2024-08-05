@@ -30,7 +30,7 @@ public class NewsService {
 
     public List<News> getAllNewsByTime(String time) {
         try {
-            NewsTime newsTime = NewsTime.valueOf(time);
+            NewsTime newsTime = NewsTime.valueOf(time.toUpperCase());
             switch (newsTime) {
                 case MORNING -> {
                     return newsRepository.findByPublicationTimeBetween(LocalTime.of(0, 0), LocalTime.of(7, 59));
@@ -45,9 +45,12 @@ public class NewsService {
                     return newsRepository.findAll();
                 }
             }
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid time input: {}", time, e);
+            throw new IllegalArgumentException("Invalid input for news time", e);
         } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new RuntimeException("Wrong input");
+            log.error("Error fetching news by time: {}", time, e);
+            throw new RuntimeException("Error fetching news by time", e);
         }
     }
 
@@ -56,16 +59,21 @@ public class NewsService {
     }
 
     public News updateNews(Long id, News newsWithNewValues) {
-        News newsWithOldValues = newsRepository.findById(id).orElseThrow();
-        setNewValues(newsWithNewValues, newsWithOldValues);
+        News newsWithOldValues = newsRepository.findById(id).orElseThrow(() ->
+                new RuntimeException("News not found with id: " + id));
+        updateNewsValues(newsWithOldValues, newsWithNewValues);
         return newsRepository.save(newsWithOldValues);
     }
 
     public void deleteNews(Long id) {
-        newsRepository.deleteById(id);
+        if (newsRepository.existsById(id)) {
+            newsRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("News not found with id: " + id);
+        }
     }
 
-    public void deleteNews() {
+    public void deleteAllNews() {
         newsRepository.deleteAll();
     }
 
@@ -75,10 +83,10 @@ public class NewsService {
         restTemplate.exchange(uri + "news", HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
     }
 
-    private void setNewValues(News newsWithNewValues, News newsWithOldValues) {
-        newsWithOldValues.setHeadline(newsWithNewValues.getHeadline());
-        newsWithOldValues.setDescription(newsWithNewValues.getDescription());
-        newsWithOldValues.setPublicationTime(newsWithNewValues.getPublicationTime());
+    private void updateNewsValues(News existingNews, News newNews) {
+        existingNews.setHeadline(newNews.getHeadline());
+        existingNews.setDescription(newNews.getDescription());
+        existingNews.setPublicationTime(newNews.getPublicationTime());
     }
 
 }

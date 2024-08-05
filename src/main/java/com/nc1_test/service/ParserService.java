@@ -1,6 +1,7 @@
 package com.nc1_test.service;
 
 import com.nc1_test.entities.Website;
+import com.nc1_test.entities.WebsiteData;
 import com.nc1_test.repository.WebsiteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -19,31 +20,55 @@ import java.util.List;
 public class ParserService {
 
     @Autowired
-    private WebsiteRepository websiteRepository;
+    private final WebsiteRepository websiteRepository;
     @Autowired
-    private PravdaParser pravdaParser;
-    RestTemplate restTemplate = new RestTemplate();
+    private final PravdaParser pravdaParser;
+    private final RestTemplate restTemplate = new RestTemplate();
     @Value("${uri}")
     private String uri;
 
 
-    public void parser(String website) {
-        Website websiteByWebsite = websiteRepository.findWebsiteByWebsiteName(website);
-        if (websiteByWebsite == null) {
-            addNewWebsite(website);
+    public void parser(String websiteName) {
+        Website website = websiteRepository.findWebsiteByWebsiteName(websiteName);
+        if (website == null) {
+            log.warn("No website with name '{}' in the database. Adding it for future parsing rule.", websiteName);
+            addNewWebsite(websiteName);
             return;
         }
 
-        if (!websiteByWebsite.isHasParsingRule())
+        if (!website.isHasParsingRule()) {
+            log.warn("No parsing rule for the website '{}'. Please add a parsing rule.", websiteName);
             return;
+        }
 
-        String websiteName = websiteByWebsite.getWebsiteName();
-        if (websiteName.equals("https://www.pravda.com.ua")) {
-            pravdaParser.parse(websiteByWebsite);
+        try {
+            WebsiteData websiteData = WebsiteData.getByWebsiteLink(websiteName);
+            if (websiteData == null) {
+                log.error("No parser available for website '{}'.", websiteName);
+                return;
+            }
+
+            switch (websiteData) {
+                case PRAVDA -> pravdaParser.parseNews();
+                default -> log.warn("No parser available for website '{}'.", websiteName);
+            }
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid website name '{}' provided.", websiteName, e);
+            throw new IllegalArgumentException("Invalid input for news time", e);
+        } catch (Exception e) {
+            log.error("Error fetching news by website '{}': {}", websiteName, e);
+            throw new RuntimeException("Error fetching news by website {}", e);
         }
     }
 
-    public void parseNews() {
+    private void addNewWebsite(String websiteName) {
+        log.info("Adding new website '{}' to the repository.", websiteName);
+        Website website = new Website(websiteName);
+        website.setHasParsingRule(false);
+        websiteRepository.save(website);
+    }
+
+    public void parseNewsFromAllWebsites() {
         List<Website> websitesForParsing = websiteRepository.findWebsiteByHasParsingRuleIsTrue();
         List<String> websitesNames = websitesForParsing.stream().map(Website::getWebsiteName).toList();
 
@@ -58,12 +83,11 @@ public class ParserService {
                 .build()
                 .encode()
                 .toUri();
-        restTemplate.getForObject(targetUrl, String.class);
-    }
-
-    private void addNewWebsite(String website) {
-        log.warn("we dont have such site");
-        websiteRepository.save(new Website(website));
+        try {
+            restTemplate.getForObject(targetUrl, String.class);
+        } catch (Exception e) {
+            log.error("Error executing parse news endpoint for website '{}'.", websiteName, e);
+        }
     }
 
 }

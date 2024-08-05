@@ -4,6 +4,7 @@ import com.nc1_test.service.ParserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,23 +25,29 @@ public class ParserController {
 
 
     @GetMapping
-    public ResponseEntity<String> parser(@RequestParam("website") String website) {
+    public ResponseEntity<String> parseAllNewsForAWebsite(@RequestParam("website") String website) {
+        log.info("Starting to parse news for website: {} on {}", website, LocalDate.now());
         try {
-            log.info("Parse all news for " + LocalDate.now() + " for " + website + ": start");
             parserService.parser(website);
-            log.info("Parse all news for " + LocalDate.now() + " for " + website + ": success");
-            return ResponseEntity.ok().build();
+            log.info("Parse news for website: {} on {}: successful", website, LocalDate.now());
+            return ResponseEntity.ok("Parsing successful");
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid website input: {}", website, e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
-            log.info("Parse all news for " + LocalDate.now() + " for " + website + ": error");
-            log.error(e.getMessage());
-            return ResponseEntity.status(500).build();
+            log.error("Error parsing news for website: {} on {}: {}", website, LocalDate.now(), e.getMessage());
+            return ResponseEntity.status(500).body("Parsing failed");
         }
     }
 
     @Scheduled(fixedRate = 1200000)
-    private void parseNews() {
-        parserService.parseNews();
+    public void parseNewsFromAllWebsites() {
+        try {
+            log.info("Starting scheduled parsing of news from all websites");
+            parserService.parseNewsFromAllWebsites();
+        } catch (Exception e) {
+            log.error("Error during scheduled parsing: {}", e.getMessage());
+        }
     }
-
 
 }
