@@ -1,4 +1,4 @@
-package com.nc1_test.service;
+package com.nc1_test.parser;
 
 import com.nc1_test.entities.News;
 import com.nc1_test.repository.NewsRepository;
@@ -10,7 +10,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
@@ -26,8 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PravdaParser implements Parser {
 
-    @Autowired
-    private NewsRepository newsRepository;
+    private final NewsRepository newsRepository;
     private static final String WEBSITE_URL = "https://www.pravda.com.ua";
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("H:mm");
 
@@ -80,7 +78,7 @@ public class PravdaParser implements Parser {
             if (!link.startsWith("http")) {
                 newsPage = Jsoup.connect(WEBSITE_URL + link).get();
             } else {
-                newsPage = Jsoup.connect(link).userAgent("Mozilla").get();
+                newsPage = Jsoup.connect(link).timeout(5000).userAgent("Mozilla").get();
             }
             elementsWithText = newsPage.getElementsByClass("post__text");
             elementsWithText.addAll(newsPage.getElementsByClass("post_text"));
@@ -103,11 +101,9 @@ public class PravdaParser implements Parser {
         if (titleElements.size() == 2) {
             if (publicationTime != null)
                 return ((TextNode) titleElements.get(1)).getWholeText().trim();
-            else
-                return ((Element) titleElements.get(1)).text();
-        } else {
-            return news.text().trim();
+            return ((Element) titleElements.get(1)).text();
         }
+        return news.text().trim();
     }
 
     private LocalTime extractPublicationTime(Element news) {
@@ -128,11 +124,6 @@ public class PravdaParser implements Parser {
 
         Example<News> example = Example.of(news, matcher);
         if (!newsRepository.exists(example)) {
-//                log.info("");
-//                log.info("Title: " + headline);
-//                log.info("Publication time: " + publicationTime);
-//                log.info("Description: " + description);
-//                log.info("");
             newsRepository.save(news);
         }
     }

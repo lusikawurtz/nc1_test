@@ -1,4 +1,4 @@
-package com.nc1_test.service;
+package com.nc1_test.parser;
 
 public interface Parser {
 

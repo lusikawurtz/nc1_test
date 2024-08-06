@@ -11,13 +11,13 @@ public class Website {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String websiteName;
-    private boolean hasParsingRule;
+    private String websiteLink;
+    private boolean parsingRulePresent;
 
 
-    public Website(String websiteName) {
-        this.websiteName = websiteName;
-        this.hasParsingRule = false;
+    public Website(String websiteLink) {
+        this.websiteLink = websiteLink;
+        this.parsingRulePresent = false;
     }
 
     public Website() {

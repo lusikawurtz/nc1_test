@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface WebsiteRepository extends JpaRepository<Website, Long> {
 
-    Website findWebsiteByWebsiteName(String websiteName);
+    Website findWebsiteByWebsiteLink(String websiteLink);
 
-    List<Website> findWebsiteByHasParsingRuleIsTrue();
+    List<Website> findWebsiteByParsingRulePresentIsTrue();
 
 }

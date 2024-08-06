@@ -1,5 +1,7 @@
 package com.nc1_test.entities;
 
+import java.util.Arrays;
+
 public enum WebsiteData {
 
     PRAVDA("https://www.pravda.com.ua"),
@@ -17,11 +19,10 @@ public enum WebsiteData {
     }
 
     public static WebsiteData getByWebsiteLink(String websiteLink) {
-        for (WebsiteData website : WebsiteData.values()) {
-            if (website.getWebsiteLink().equals(websiteLink))
-                return website;
-        }
-        return null;
+        return Arrays.stream(WebsiteData.values())
+                .filter(website -> website.getWebsiteLink().equals(websiteLink))
+                .findFirst()
+                .orElse(null);
     }
 
 }
