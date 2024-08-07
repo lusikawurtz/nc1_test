@@ -1,7 +1,7 @@
-package com.nc1_test.service;
+package com.nc1_test.services;
 
 import com.nc1_test.entities.Website;
-import com.nc1_test.repository.WebsiteRepository;
+import com.nc1_test.repositories.WebsiteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,7 +49,7 @@ public class SchedulerService {
     private void executeDeleteNewsEndpoint() {
         HttpHeaders headers = new HttpHeaders();
         headers.add(headerName, "DELETE");
-        restTemplate.exchange(uri + "news", HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
+        restTemplate.exchange(uri + "/news", HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
     }
 
     private void parseNews() {
@@ -59,7 +59,7 @@ public class SchedulerService {
     }
 
     private void executeParseNewsEndpoint(String websiteName) {
-        URI targetUrl = UriComponentsBuilder.fromUriString(uri + "parse")
+        URI targetUrl = UriComponentsBuilder.fromUriString(uri + "/parse")
                 .queryParam("website", websiteName)
                 .build()
                 .encode()

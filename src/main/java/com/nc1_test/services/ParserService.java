@@ -1,9 +1,9 @@
-package com.nc1_test.service;
+package com.nc1_test.services;
 
 import com.nc1_test.entities.Website;
 import com.nc1_test.entities.WebsiteData;
-import com.nc1_test.parser.PravdaParser;
-import com.nc1_test.repository.WebsiteRepository;
+import com.nc1_test.parsers.PravdaParser;
+import com.nc1_test.repositories.WebsiteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
-package com.nc1_test.parser;
+package com.nc1_test.parsers;
 
 import com.nc1_test.entities.News;
-import com.nc1_test.repository.NewsRepository;
+import com.nc1_test.repositories.NewsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jsoup.Jsoup;

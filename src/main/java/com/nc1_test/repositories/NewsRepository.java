@@ -1,4 +1,4 @@
-package com.nc1_test.repository;
+package com.nc1_test.repositories;
 
 import com.nc1_test.entities.News;
 import org.springframework.data.jpa.repository.JpaRepository;

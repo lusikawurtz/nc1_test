@@ -1,13 +1,11 @@
-package com.nc1_test.controller;
+package com.nc1_test.controllers;
 
 import com.nc1_test.entities.News;
-import com.nc1_test.service.NewsService;
+import com.nc1_test.services.NewsService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -18,7 +16,6 @@ import java.util.List;
 @RequestMapping("/news")
 @RequiredArgsConstructor
 public class NewsController {
-
     private final NewsService newsService;
 
 
@@ -33,7 +30,7 @@ public class NewsController {
             return ResponseEntity.badRequest().body(null);
         } catch (Exception e) {
             log.error("Error getting the news for time: {}", time, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.internalServerError().body(null);
         }
     }
 

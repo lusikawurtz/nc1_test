@@ -1,7 +1,12 @@
 package com.nc1_test;
 
-import org.springframework.boot.SpringApplication;
+import com.nc1_test.fx.JavaFxApplication;
+import javafx.application.Application;
+import net.rgielen.fxweaver.core.FxWeaver;
+import net.rgielen.fxweaver.spring.SpringFxWeaver;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
@@ -9,7 +14,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class Nc1TestApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Nc1TestApplication.class, args);
+        Application.launch(JavaFxApplication.class, args);
+    }
+
+    @Bean
+    public FxWeaver fxWeaver(ConfigurableApplicationContext applicationContext) {
+        return new SpringFxWeaver(applicationContext);
     }
 
 }

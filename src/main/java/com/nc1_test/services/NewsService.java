@@ -1,8 +1,8 @@
-package com.nc1_test.service;
+package com.nc1_test.services;
 
 import com.nc1_test.entities.News;
 import com.nc1_test.entities.NewsTime;
-import com.nc1_test.repository.NewsRepository;
+import com.nc1_test.repositories.NewsRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

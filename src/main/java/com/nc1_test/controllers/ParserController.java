@@ -1,6 +1,6 @@
-package com.nc1_test.controller;
+package com.nc1_test.controllers;
 
-import com.nc1_test.service.ParserService;
+import com.nc1_test.services.ParserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
