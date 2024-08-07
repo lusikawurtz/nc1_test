@@ -22,9 +22,9 @@
         <Button layoutX="185.0" layoutY="150.0" mnemonicParsing="false" onAction="#cancelWebsitePersonAction" prefHeight="35.0" prefWidth="75.0" text="Clear"/>
     </AnchorPane>
 
-    <TextArea id="text" fx:id="textResponse" style="-fx-control-inner-background:#000000; -fx-font-family: Consolas; -fx-highlight-fill: #6c6c6c; -fx-highlight-text-fill: #ffffff; -fx-text-fill: #ff0000; ">
+    <TextArea id="text" fx:id="textResponse" style="-fx-font-family: 'DejaVu Sans'; -fx-background-color: #000000">
         <font>
-            <Font name="System Bold" size="20.0" />
+            <Font name="news" size="20.0" />
         </font>
     </TextArea>
 

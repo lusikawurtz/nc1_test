@@ -1,5 +1,9 @@
 package com.nc1_test.fx;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nc1_test.entities.News;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -9,11 +13,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import lombok.extern.log4j.Log4j2;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -21,11 +24,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Log4j2
-//@Component
-@Controller
+@Component
 @FxmlView("main-scene.fxml")
 public class FXController {
 
@@ -51,26 +57,28 @@ public class FXController {
     }
 
     @FXML
-    private void createWebsiteAction(ActionEvent event) throws IOException {
-        mainLabel.setText("Write time period");
-        mainLabel.setLayoutX(150);
-        mainLabel.setLayoutY(15);
-
-        String response = executeParseNewsEndpoint();
-
-        if (response != null)
-            if (response.equals("Please, write only 'Day', 'Morning' or 'Evening'"))
-                mainLabel.setText("Please, write only 'Day', 'Morning' or 'Evening'");
-            else
-                writeResponse(response);
-    }
-
-    @FXML
     private void cancelWebsitePersonAction(ActionEvent event) {
         timeInput.clear();
     }
 
-    private String executeParseNewsEndpoint() throws IOException {
+    @FXML
+    private void createWebsiteAction(ActionEvent event) throws IOException {
+        writeTitleLabel("Write time period");
+        List<String> response = executeParseNewsEndpointAndGetResponse();
+        if (response != null)
+            writeResponse(response);
+        else
+            writeTitleLabel("Please, write only 'Day', 'Morning' or 'Evening'");
+
+    }
+
+    private void writeTitleLabel(String message) {
+        mainLabel.setText(message);
+        mainLabel.setLayoutX(50);
+        mainLabel.setLayoutY(15);
+    }
+
+    private List<String> executeParseNewsEndpointAndGetResponse() throws IOException {
         String uri = loadProperties().getProperty("uri");
         URI targetUrl = UriComponentsBuilder.fromUriString(uri + "/news")
                 .queryParam("time", timeInput.getText())
@@ -79,29 +87,20 @@ public class FXController {
                 .toUri();
         try {
             String response = restTemplate.getForObject(targetUrl, String.class);
-            return getStringResponse(response);
+            return setJSONToListString(response);
         } catch (HttpClientErrorException clientErrorException) {
             log.error("Bad input for '{}'.", timeInput, clientErrorException);
-            return "Please, write only 'Day', 'Morning' or 'Evening'";
+            return null;
         } catch (Exception e) {
             log.error("Error executing get news endpoint for time period '{}'.", timeInput, e);
             return null;
         }
     }
 
-    private String getStringResponse(String response) {
-//        JSONObject jsonObject= new JSONObject(response);
-        return response;
-    }
-
-    private void writeResponse(String response) {
+    private void writeResponse(List<String> response) {
         Stage primaryStage = new Stage();
 
-        textResponse.setPrefSize(1000, 1000);
-        textResponse.setText(response);
-        textResponse.setWrapText(true);
-        textResponse.setFont(new Font(20));
-
+        addRepsonseToTextArea(response);
         ScrollPane scroll = new ScrollPane();
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -112,6 +111,37 @@ public class FXController {
         Scene scene = new Scene(root, 1000, 1000);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private void addRepsonseToTextArea(List<String> response) {
+        textResponse.setPrefSize(1000, 1000);
+        textResponse.setWrapText(true);
+        textResponse.setText("");
+        List<String> finalResponse = IntStream.range(0, response.size()).boxed()
+                .flatMap(i -> (i + 1) % 3 == 0 ? Stream.of(response.get(i), "\n") : Stream.of(response.get(i)))
+                .toList();
+        finalResponse.forEach(r -> {
+            textResponse.appendText("\n");
+            textResponse.appendText(r);
+        });
+    }
+
+    private List<String> setJSONToListString(String response) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.findAndRegisterModules();
+        List<News> articles = objectMapper.readValue(response, new TypeReference<>() {
+        });
+        List<String> details = new ArrayList<>();
+
+        for (News article : articles) {
+            details.add(article.getHeadline());
+            details.add(article.getDescription());
+            if (article.getPublicationTime() != null)
+                details.add(article.getPublicationTime().toString());
+            else
+                details.add("");
+        }
+        return details;
     }
 
     private static Properties loadProperties() throws IOException {

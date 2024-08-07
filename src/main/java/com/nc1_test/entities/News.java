@@ -1,5 +1,7 @@
 package com.nc1_test.entities;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,6 +20,7 @@ public class News {
     private String headline;
     @Column(length = 65555)
     private String description;
+    @JsonSerialize(using = LocalTimeSerializer.class)
     private LocalTime publicationTime;
 
 

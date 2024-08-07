@@ -56,11 +56,11 @@ public class PravdaParser implements Parser {
     private String extractDescription(Element news) {
         Elements elementWithNewsLink = news.getElementsByTag("a");
         if (elementWithNewsLink.isEmpty())
-            return null;
+            return "";
 
         Elements elementsWithText = getElementsWithText(elementWithNewsLink);
         if (elementsWithText == null)
-            return null;
+            return "";
 
         StringBuilder description = new StringBuilder();
         for (Element text : elementsWithText) {
